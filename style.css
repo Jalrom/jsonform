@@ -1,0 +1,85 @@
+form {
+    margin: 2em;
+}
+
+.form-group {
+    display: flex;
+    margin-bottom: 0.5em !important;
+    width: 420px;
+    text-align: right;
+}
+
+fieldset input {
+    width: 200px !important;
+}
+
+fieldset input[type='checkbox'] { 
+    width: auto !important;
+    cursor: pointer;
+    top: 50%;
+    transform: translateY(-50%);
+ }
+
+fieldset select {
+    width: 200px !important;
+}
+
+select:hover {
+    cursor: pointer;
+}
+
+.checkbox {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    height: 34px;
+}
+
+.checkbox label {
+    cursor: unset !important;
+}
+fieldset .controls {
+    text-align: right;
+    /*display: inline-block;*/
+}
+
+fieldset .help-block {
+    display: none;
+}
+
+fieldset label {
+    font-weight: normal;
+    margin-right: 1em;
+    margin-bottom: 0px !important;
+    width: 200px;
+}
+
+fieldset ._jsonform-array-buttons {
+    margin-left: 11em;
+}
+
+fieldset .form-group {
+    align-items: center;
+}
+
+.jsonform-required label:after {
+    content: "*";
+    color: red;
+    font-weight: bold;
+    margin-left: 0.5em;
+}
+
+.glyphicon-minus-sign {
+    color: red;
+}
+
+.glyphicon-plus-sign {
+    color: green;
+}
+
+legend {
+    text-align: left;
+}
+
+fieldset fieldset legend {
+    margin-left: 2em;
+}

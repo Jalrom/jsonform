@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Parse Swagger</title>
+    <link rel="stylesheet" type="text/css" href="deps/opt/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+    <form></form>
+    <div id="res" class="alert"></div>
+    <script src="deps/jquery.min.js"></script>
+    <script src="deps/underscore.js"></script>
+    <script src="deps/opt/jsv.js"></script>
+    <script src="lib/jsonform.js"></script>
+    <script src="https://unpkg.com/json-schema-ref-parser/dist/ref-parser.min.js"></script>
+
+    <script type="text/javascript">
+        convertRequire = function (obj, parent) {
+            var k;
+            if (obj instanceof Object) {
+                for (k in obj) {
+                    if (k === 'properties') {
+                        for (let i in obj[k]) {
+                            obj[k][i].title = unCamelCaseToUpperFirt(i);
+                        }
+                    }
+                    if (obj.hasOwnProperty(k)) {
+                        if (k === 'required' && Array.isArray(obj[k])) {
+                            for (item of obj[k]) {
+                                obj.properties[item].required = true;
+                            }
+                            delete obj.required;
+                        }
+                        convertRequire(obj[k], obj);
+                    }
+                }
+            }
+        }
+
+        function lowerCase(str) {
+            return str.toLowerCase();
+        }
+
+        function upperCase(str) {
+            return str.toUpperCase();
+        }
+
+        function unCamelCase(str) {
+            str = str.replace(/([a-z\xE0-\xFF])([A-Z\xC0\xDF])/g, '$1 $2');
+            str = str.toLowerCase(); //add space between camelCase text
+            return str;
+        }
+
+        function properCase(str) {
+            return lowerCase(str).replace(/^\w|\s\w/g, upperCase);
+        }
+
+        function unCamelCaseToUpperFirt(str) {
+            return properCase(unCamelCase(str));
+        }
+        var mySchema = {
+            "swagger": "2.0",
+            "info": {
+                "x-ms-api-annotation": {
+                    "status": "Production"
+                },
+                "version": "v1",
+                "title": "API v1"
+            },
+            "host": "icm-connector.azurewebsites.net",
+            "schemes": [
+                "https"
+            ],
+            "paths": {
+                "/api/v1/incidents": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+                            {
+                                "name": "createIncident",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/CreateIncident"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "201": {
+                                "description": "Success",
+                                "schema": {
+                                    "$ref": "#/definitions/CreateIncidentResponse"
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "default",
+                        "summary": "Create IcM incident",
+                        "description": "Create IcM incident."
+                    }
+                },
+                "/api/v1/incidents/{id}": {
+                    "get": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdGet",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "$ref": "#/definitions/ICMIncident"
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "default",
+                        "summary": "Get an IcM incident",
+                        "description": "Get an IcM incident."
+                    }
+                },
+                "/api/v1/incidents/{id}/routingrecommendations": {
+                    "get": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdRoutingrecommendationsGet",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "$ref": "#/definitions/IncidentRoutingResult"
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "default",
+                        "summary": "Get routing recommendations",
+                        "description": "Get team routing recommendations for IcM incident."
+                    }
+                },
+                "/api/v1/incidents/{id}/similarincidents": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdSimilarincidentsPost",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/SimilarIncident"
+                                    }
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "default",
+                        "summary": "Get similar active incidents",
+                        "description": "Get similar active incidents recommendations for given IcM incident id."
+                    }
+                },
+                "/api/v1/incidents/{id}/transfer": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdTransferPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            },
+                            {
+                                "name": "transferIncident",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/TransferIncident"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "Transfer IcM incident",
+                        "description": "Transfer IcM incident."
+                    }
+                },
+                "/api/v1/incidents/{id}/discussion": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdDiscussionPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            },
+                            {
+                                "name": "discussionDefinition",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/DiscussionDefinition"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "Add new IcM Discussion entry",
+                        "description": "Add new IcM Discussion entry."
+                    }
+                },
+                "/api/v1/incidents/{id}/severity": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdSeverityPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            },
+                            {
+                                "name": "updateIncidentSeverity",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/UpdateSeverity"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "Update IcM incident severity",
+                        "description": "Update IcM incident severity."
+                    }
+                },
+                "/api/v1/incidents/{id}/edit": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdEditPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            },
+                            {
+                                "name": "editIncident",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/EditIncident"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "default",
+                        "summary": "Edit an IcM incident",
+                        "description": "Edit an IcM incident."
+                    }
+                },
+                "/api/v1/incidents/{id}/owner": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdOwnerPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            },
+                            {
+                                "name": "editOwner",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/EditOwner"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "Change the owner of an IcM incident",
+                        "description": "Change the owner of an IcM incident."
+                    }
+                },
+                "/api/v1/incidents/{id}/resolve": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdResolvePost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            },
+                            {
+                                "name": "resolveIncident",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/ResolveOrMitigateIncident"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "Resolve an IcM incident",
+                        "description": "Resolve an IcM incident."
+                    }
+                },
+                "/api/v1/incidents/{id}/mitigate": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdMitigatePost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            },
+                            {
+                                "name": "mitigateIncident",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/ResolveOrMitigateIncident"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "Mitigate an IcM incident",
+                        "description": "Mitigate an IcM incident."
+                    }
+                },
+                "/api/v1/incidents/{id}/link": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdLinkPost",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            },
+                            {
+                                "name": "linkType",
+                                "in": "query",
+                                "required": true,
+                                "type": "string",
+                                "enum": [
+                                    "Parent",
+                                    "Child",
+                                    "Related",
+                                    "Responsible",
+                                    "TFS"
+                                ],
+                                "x-ms-visibility": "default",
+                                "x-ms-summary": "Link type",
+                                "description": "The type of link to be added."
+                            },
+                            {
+                                "name": "linkIncidentId",
+                                "in": "query",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "default",
+                                "x-ms-summary": "Link id",
+                                "description": "The id of the item to be linked."
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "Add an IcM or external link item",
+                        "description": "Adds a link to the parent, child, related incident or External TFS item."
+                    }
+                },
+                "/api/v1/incidents/{id}/reactivate": {
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdReactivatePost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident."
+                            },
+                            {
+                                "name": "reactivateIncident",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/ReactivateIncident"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "Reactivate incident",
+                        "description": "Reactivates the incident."
+                    }
+                },
+                "/api/v1/incidents/{id}/rootcause": {
+                    "get": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdRootcauseGet",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "default",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident for getting the root cause."
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "$ref": "#/definitions/RootCauseDetails"
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "default",
+                        "summary": "Get root cause",
+                        "description": "Gets root cause of an incident."
+                    },
+                    "post": {
+                        "tags": [
+                            "Incident"
+                        ],
+                        "operationId": "ApiV1IncidentsByIdRootcausePost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string",
+                                "x-ms-visibility": "default",
+                                "x-ms-summary": "Incident id",
+                                "description": "The id of the incident for creating or updating the root cause."
+                            },
+                            {
+                                "name": "rootCause",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/AddOrUpdateRootCause"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "Create or Update root cause",
+                        "description": "Creates or Updates the root cause."
+                    }
+                },
+                "/api/v1/subscriptions/created": {
+                    "post": {
+                        "tags": [
+                            "Subscriptions"
+                        ],
+                        "operationId": "ApiV1SubscriptionsCreatedPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "icmCreateTrigger",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/ICMTrigger"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "201": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "When an IcM incident is created",
+                        "description": "IcM trigger that will fire when incident is created using provided filter criteria.",
+                        "x-ms-trigger": "single"
+                    },
+                    "x-ms-notification-content": {
+                        "description": "IcM incident created",
+                        "schema": {
+                            "$ref": "#/definitions/ICMIncident"
+                        }
+                    }
+                },
+                "/api/v1/subscriptions/transferred": {
+                    "post": {
+                        "tags": [
+                            "Subscriptions"
+                        ],
+                        "operationId": "ApiV1SubscriptionsTransferredPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "icmTransferredTrigger",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/ICMTrigger"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "201": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "When an IcM incident is transferred",
+                        "description": "IcM trigger that will fire when incident is transferred using provided filter criteria.",
+                        "x-ms-trigger": "single"
+                    },
+                    "x-ms-notification-content": {
+                        "description": "IcM incident transferred",
+                        "schema": {
+                            "$ref": "#/definitions/ICMIncident"
+                        }
+                    }
+                },
+                "/api/v1/subscriptions/mitigated": {
+                    "post": {
+                        "tags": [
+                            "Subscriptions"
+                        ],
+                        "operationId": "ApiV1SubscriptionsMitigatedPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "icmMitigatedTrigger",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/ICMTrigger"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "201": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "When an IcM incident is mitigated",
+                        "description": "IcM trigger that will fire when incident is mitigated using provided filter criteria.",
+                        "x-ms-trigger": "single"
+                    },
+                    "x-ms-notification-content": {
+                        "description": "IcM incident mitigated",
+                        "schema": {
+                            "$ref": "#/definitions/ICMIncident"
+                        }
+                    }
+                },
+                "/api/v1/subscriptions/createdOrTransferred": {
+                    "post": {
+                        "tags": [
+                            "Subscriptions"
+                        ],
+                        "operationId": "ApiV1SubscriptionsCreatedOrTransferredPost",
+                        "consumes": [
+                            "application/json-patch+json",
+                            "application/json",
+                            "text/json",
+                            "application/*+json"
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "icmCreateTrigger",
+                                "in": "body",
+                                "required": true,
+                                "schema": {
+                                    "$ref": "#/definitions/ICMTrigger"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "201": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "important",
+                        "summary": "When an IcM incident is created or transferred",
+                        "description": "IcM trigger that will fire when incident is created or transferred using provided filter criteria.",
+                        "x-ms-trigger": "single"
+                    },
+                    "x-ms-notification-content": {
+                        "description": "IcM incident created or transferred",
+                        "schema": {
+                            "$ref": "#/definitions/ICMIncident"
+                        }
+                    }
+                },
+                "/api/v1/subscriptions/{id}": {
+                    "delete": {
+                        "tags": [
+                            "Subscriptions"
+                        ],
+                        "operationId": "ApiV1SubscriptionsByIdDelete",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+
+                        ],
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "in": "path",
+                                "required": true,
+                                "type": "string"
+                            }
+                        ],
+                        "responses": {
+                            "204": {
+                                "description": "Success"
+                            }
+                        },
+                        "x-ms-visibility": "internal",
+                        "summary": "Delete IcM trigger",
+                        "description": "Delete the IcM trigger."
+                    }
+                },
+                "/api/v1/tenants": {
+                    "get": {
+                        "tags": [
+                            "Tenant"
+                        ],
+                        "operationId": "GetTenantList",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "internal",
+                        "summary": "Gets the list of IcM tenant names",
+                        "description": "Gets the list of IcM tenant names."
+                    }
+                },
+                "/api/v1/tenants/teams": {
+                    "get": {
+                        "tags": [
+                            "Tenant"
+                        ],
+                        "operationId": "GetTeamsList",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+                            {
+                                "name": "tenantName",
+                                "in": "query",
+                                "required": false,
+                                "type": "string"
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "internal",
+                        "summary": "Gets the list of IcM team names for a given tenant name",
+                        "description": "Gets the list of IcM team names for a given tenant name."
+                    }
+                },
+                "/api/v1/silos": {
+                    "get": {
+                        "tags": [
+                            "Tenant"
+                        ],
+                        "operationId": "ApiV1SilosGet",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "internal",
+                        "summary": "Get the list of cloud names",
+                        "description": "Gets the list of cloud names."
+                    }
+                },
+                "/api/v1/silos/{siloId}/cloudname": {
+                    "get": {
+                        "tags": [
+                            "Tenant"
+                        ],
+                        "operationId": "ApiV1SilosBySiloIdCloudnameGet",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+                            {
+                                "name": "siloId",
+                                "in": "path",
+                                "required": true,
+                                "type": "integer",
+                                "format": "int64",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Silo Id",
+                                "description": "The silo id."
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "internal",
+                        "summary": "Get the cloud name from silo id",
+                        "description": "Gets the cloud name from silo id."
+                    }
+                },
+                "/api/v1/silos/cloudname": {
+                    "get": {
+                        "tags": [
+                            "Tenant"
+                        ],
+                        "operationId": "ApiV1SilosCloudnameGet",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+                            {
+                                "name": "cloudName",
+                                "in": "query",
+                                "required": false,
+                                "type": "string",
+                                "x-ms-visibility": "important",
+                                "x-ms-summary": "Cloud Name",
+                                "description": "The cloud name."
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "internal",
+                        "summary": "Get the silo id from cloud name",
+                        "description": "Gets the silo id from cloud name."
+                    }
+                },
+                "/api/v1/rootCauseCategories": {
+                    "get": {
+                        "tags": [
+                            "Tenant"
+                        ],
+                        "operationId": "GetRootCauseCategory",
+                        "consumes": [
+
+                        ],
+                        "produces": [
+                            "text/plain",
+                            "application/json",
+                            "text/json"
+                        ],
+                        "parameters": [
+                            {
+                                "name": "tenantName",
+                                "in": "query",
+                                "required": true,
+                                "type": "string"
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Success",
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/RootCauseCategory"
+                                    }
+                                }
+                            }
+                        },
+                        "x-ms-visibility": "internal",
+                        "summary": "Get the list of root cause categories",
+                        "description": "Gets the list of root cause categories."
+                    }
+                }
+            },
+            "definitions": {
+                "CreateIncident": {
+                    "required": [
+                        "ConnectorId",
+                        "Title",
+                        "HowFound",
+                        "DiscussionEntry"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "ConnectorId": {
+                            "required": true,
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Connector Id",
+                            "description": "The connector id from IcM manage services. Must correspond to the owning service."
+                        },
+                        "RoutingId": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Routing id",
+                            "description": "String field used by IcM automation to determine routing if any. Use team recommendation - Defaulted to GUID URI."
+                        },
+                        "CreatedBy": {
+                            "type": "string",
+                            "x-ms-visibility": "internal",
+                            "x-ms-summary": "Created by",
+                            "description": "The alias of the user or service who created the incident. Defaulted to Geneva Automation alias."
+                        },
+                        "Title": {
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Title",
+                            "description": "The title of the incident."
+                        },
+                        "OwningService": {
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Owning service",
+                            "description": "The name of the tenant that currently owns the incident.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTenantList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+
+                                }
+                            }
+                        },
+                        "OwningTeam": {
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Owning team",
+                            "description": "The public id of the team that currently owns the incident.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTeamsList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+                                    "tenantName": {
+                                        "parameter": "OwningService"
+                                    }
+                                }
+                            }
+                        },
+                        "HowFound": {
+                            "default": "Other",
+                            "enum": [
+                                "Other",
+                                "Monitor",
+                                "Customer",
+                                "Manual",
+                                "Partner",
+                                "Performance Counter",
+                                "Runner",
+                                "Forum/DL",
+                                "Deployment",
+                                "Workflow",
+                                "Email"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "How found",
+                            "description": "Origin type containing how the incident was found."
+                        },
+                        "Severity": {
+                            "default": "4",
+                            "enum": [
+                                "0",
+                                "1",
+                                "2",
+                                "3",
+                                "4"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Severity",
+                            "description": "The severity of the incident."
+                        },
+                        "DiscussionEntry": {
+                            "$ref": "#/definitions/DiscussionDefinition",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Discussion entry",
+                            "description": "The latest discussion entry for the incident."
+                        },
+                        "Summary": {
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Summary",
+                            "description": "The summary of the incident."
+                        },
+                        "CustomFields": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CreateCustomFieldsDefinition"
+                            },
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Custom fields list",
+                            "description": "List of custom fields."
+                        },
+                        "Owner": {
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Owner",
+                            "description": "The alias of the incident owner."
+                        },
+                        "TsgId": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "TSG id",
+                            "description": "Tsg id to be executed when the incident occurs."
+                        },
+                        "Environment": {
+                            "enum": [
+                                "UNKNOWN",
+                                "DOGFOOD",
+                                "INT",
+                                "PPE",
+                                "PROD",
+                                "STAGING",
+                                "TEST"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Environment",
+                            "description": "Environment where the incident occurred."
+                        },
+                        "DCRegion": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "DC / region",
+                            "description": "Datacenter or region where the incident occurred."
+                        },
+                        "InstanceCluster": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Instance / cluster",
+                            "description": "Instance, cluster, or device name where the the incident occured."
+                        },
+                        "Role": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Role",
+                            "description": "The role or the device group."
+                        },
+                        "Slice": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Slice",
+                            "description": "The slice or the service instance id."
+                        },
+                        "IncidentType": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Incident type",
+                            "description": "Type of the incident."
+                        },
+                        "IncidentSubType": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Incident sub type",
+                            "description": "The sub type of the incident."
+                        },
+                        "ServiceResponsible": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Service responsible",
+                            "description": "The service responsible for the incident.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTenantList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+
+                                }
+                            }
+                        },
+                        "TeamResponsible": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Team responsible",
+                            "description": "The team responsible for the incident.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTeamsList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+                                    "tenantName": {
+                                        "parameter": "ServiceResponsible"
+                                    }
+                                }
+                            }
+                        },
+                        "IsSecurityRisk": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Security risk",
+                            "description": "Indicates whether the incident is classified as a security risk."
+                        },
+                        "IsNoise": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Noise",
+                            "description": "Indicates whether the incident is classified as 'noise'"
+                        },
+                        "IsOutage": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Outage",
+                            "description": "Indicates whether the incident is classified as an outage."
+                        },
+                        "Keywords": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Keywords",
+                            "description": "A set of keywords associated with an incident."
+                        },
+                        "ImpactedService": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Impacted service",
+                            "description": "The name of the service that currently owns the incident.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTenantList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+
+                                }
+                            }
+                        },
+                        "ImpactedTeam": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Impacted team",
+                            "description": "The impacted team.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTeamsList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+                                    "tenantName": {
+                                        "parameter": "ImpactedService"
+                                    }
+                                }
+                            }
+                        },
+                        "ImpactedComponent": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Impacted component",
+                            "description": "The impacted component."
+                        },
+                        "IsCustomerImpacting": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Customer impact",
+                            "description": "Indicates whether the incident has impacted a customer of the owning service."
+                        },
+                        "CustomerName": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Customer name",
+                            "description": "Customer name associated with the incident."
+                        },
+                        "SubscriptionId": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Subscription id",
+                            "description": "The subscription id."
+                        },
+                        "CorrelationId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Correlation id",
+                            "description": "The incident correlation id."
+                        },
+                        "MonitoringId": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Monitoring id",
+                            "description": "The monitoring id."
+                        },
+                        "SupportTicketId": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Support ticket id",
+                            "description": "The support ticket id."
+                        },
+                        "DiagnosticsLink": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Diagnostics link",
+                            "description": "The diagnostic link."
+                        },
+                        "ImpactStartDate": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Impact start date",
+                            "description": "The impact start date."
+                        },
+                        "MonitoringEnvironment": {
+                            "enum": [
+                                "UNKNOWN",
+                                "DOGFOOD",
+                                "INT",
+                                "PPE",
+                                "PROD",
+                                "STAGING",
+                                "TEST"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Monitoring environment",
+                            "description": "The raising location environment where the incident occurred."
+                        },
+                        "MonitoringDCRegion": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Monitoring DC / region",
+                            "description": "The raising location datacenter or region where the incident occurred."
+                        },
+                        "MonitoringInstanceCluster": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Monitoring instance / cluster",
+                            "description": "The raising location instance, cluster, or device name where the the incident occured."
+                        },
+                        "MonitoringRole": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Monitoring role",
+                            "description": "The raising location  role or the device group."
+                        },
+                        "MonitoringSlice": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Monitoring slice",
+                            "description": "The raising location slice or the service instance id."
+                        }
+                    }
+                },
+                "DiscussionDefinition": {
+                    "required": [
+                        "DiscussionText",
+                        "RenderType"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "DiscussionText": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Discussion entry",
+                            "description": "Add a discussion entry."
+                        },
+                        "RenderType": {
+                            "default": "Plaintext",
+                            "enum": [
+                                "Plaintext",
+                                "Html"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "internal",
+                            "x-ms-summary": "Render type",
+                            "description": "Render text as Plaintext or HTML."
+                        }
+                    }
+                },
+                "CreateCustomFieldsDefinition": {
+                    "type": "object",
+                    "properties": {
+                        "ContainerType": {
+                            "default": "FrontEndCategory",
+                            "enum": [
+                                "FrontEndCategory",
+                                "Tenant"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Custom field container",
+                            "description": "Defined as per tenant and per frontend category"
+                        },
+                        "CustomFieldName": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Custom field name",
+                            "description": "Custom field name."
+                        },
+                        "CustomFieldValue": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Custom field value",
+                            "description": "Value of custom field."
+                        }
+                    }
+                },
+                "CreateIncidentResponse": {
+                    "required": [
+                        "IncidentId"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "IncidentId": {
+                            "format": "int64",
+                            "type": "integer",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Incident id",
+                            "description": "The id of the incident."
+                        }
+                    }
+                },
+                "ICMIncident": {
+                    "required": [
+                        "CreatedDate",
+                        "ModifiedDate",
+                        "IncidentId",
+                        "Title",
+                        "OwningService"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "CreatedBy": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Created by",
+                            "description": "The alias of the user or service who created the incident."
+                        },
+                        "CreatedDate": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Created date",
+                            "description": "Created date of the incident."
+                        },
+                        "ModifiedDate": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Modified date",
+                            "description": "Modified date of the incident."
+                        },
+                        "IncidentId": {
+                            "format": "int64",
+                            "type": "integer",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Incident id",
+                            "description": "The id of the incident."
+                        },
+                        "Title": {
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Title",
+                            "description": "The title of the incident."
+                        },
+                        "Severity": {
+                            "enum": [
+                                "0",
+                                "1",
+                                "2",
+                                "3",
+                                "4"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Severity",
+                            "description": "The severity of the incident."
+                        },
+                        "Status": {
+                            "enum": [
+                                "Invalid",
+                                "Active",
+                                "Resolved",
+                                "New",
+                                "Mitigating",
+                                "Correlating",
+                                "Mitigated",
+                                "Holding",
+                                "Suppressed"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Status",
+                            "description": "Status of the incident."
+                        },
+                        "Summary": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Summary",
+                            "description": "The summary of the incident."
+                        },
+                        "DiscussionEntry": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Discussion entry",
+                            "description": "The latest discussion entry for the incident."
+                        },
+                        "CustomFields": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CustomFieldsDefinition"
+                            },
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Custom fields array",
+                            "description": "Array representation of custom fields."
+                        },
+                        "OwningService": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning service",
+                            "description": "The name of the tenant that currently owns the incident."
+                        },
+                        "OwningTeam": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning team",
+                            "description": "The public id of the team that currently owns the incident."
+                        },
+                        "Owner": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owner",
+                            "description": "The alias of the incident owner."
+                        },
+                        "TsgId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "TSG id",
+                            "description": "Tsg id to be executed when the incident occurs."
+                        },
+                        "Environment": {
+                            "enum": [
+                                "UNKNOWN",
+                                "DOGFOOD",
+                                "INT",
+                                "PPE",
+                                "PROD",
+                                "STAGING",
+                                "TEST"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Environment",
+                            "description": "Environment where the incident occurred."
+                        },
+                        "DCRegion": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "DC / region",
+                            "description": "Datacenter or region where the incident occurred."
+                        },
+                        "InstanceCluster": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Instance / cluster",
+                            "description": "Instance, cluster, or device name where the the incident occured."
+                        },
+                        "Role": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Role",
+                            "description": "The role or the device group."
+                        },
+                        "Slice": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Slice",
+                            "description": "The slice or the service instance id."
+                        },
+                        "IncidentType": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Incident type",
+                            "description": "Type of the incident."
+                        },
+                        "IncidentSubType": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Incident sub type",
+                            "description": "The sub type of the incident."
+                        },
+                        "ServiceResponsible": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Service responsible",
+                            "description": "The service responsible for the incident."
+                        },
+                        "TeamResponsible": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Team responsible",
+                            "description": "The team responsible for the incident."
+                        },
+                        "IsSecurityRisk": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Security risk",
+                            "description": "Indicates whether the incident is classified as a security risk."
+                        },
+                        "IsNoise": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Noise",
+                            "description": "Indicates whether the incident is classified as 'noise'"
+                        },
+                        "IsOutage": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Outage",
+                            "description": "Indicates whether the incident is classified as an outage."
+                        },
+                        "Keywords": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Keywords",
+                            "description": "A set of keywords associated with an incident."
+                        },
+                        "ImpactedServices": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Impacted services",
+                            "description": "A list of impacted teams."
+                        },
+                        "ImpactedTeams": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Impacted teams",
+                            "description": "A list of impacted teams."
+                        },
+                        "ImpactedComponents": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Impacted components",
+                            "description": "A list of impacted components."
+                        },
+                        "IsCustomerImpacting": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Customer impact",
+                            "description": "Indicates whether the incident has impacted a customer of the owning service."
+                        },
+                        "CustomerName": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Customer name",
+                            "description": "Customer name associated with the incident."
+                        },
+                        "SubscriptionId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Subscription id",
+                            "description": "The subscription id."
+                        },
+                        "CorrelationId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Correlation id",
+                            "description": "The incident correlation id."
+                        },
+                        "TsgOutput": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "TSG output",
+                            "description": "The output of the Tsg."
+                        },
+                        "MitigationSteps": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Mitigation taken",
+                            "description": "Mitigation steps taken."
+                        },
+                        "HowFixed": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "How fixed",
+                            "description": "How the incident was fixed."
+                        },
+                        "MonitoringId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Monitoring id",
+                            "description": "The monitoring id."
+                        },
+                        "RootCauseCategory": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Root cause category",
+                            "description": "The root cause category."
+                        },
+                        "AlertSource": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Alert source",
+                            "description": "The alert source id."
+                        },
+                        "SupportTicketId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Support ticket id",
+                            "description": "The support ticket id."
+                        },
+                        "RoutingId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Routing id",
+                            "description": "The routing id."
+                        },
+                        "DiagnosticsLink": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Diagnostics link",
+                            "description": "The diagnostic link."
+                        },
+                        "CommitDate": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Commit date",
+                            "description": "The commit date."
+                        },
+                        "ImpactStartDate": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Impact start date",
+                            "description": "The impact start date."
+                        },
+                        "IsAcknowledged": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Is acknowledged",
+                            "description": "Indicates whether the incident has been acknowledged."
+                        },
+                        "AcknowledgedDate": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Acknowledged date",
+                            "description": "The acknowledged date."
+                        },
+                        "AcknowledgeContactAlias": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Acknowledge contact alias",
+                            "description": "The contact alias who acknowledged the incident."
+                        },
+                        "MonitoringEnvironment": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Monitoring environment",
+                            "description": "The raising location environment where the incident occurred."
+                        },
+                        "MonitoringDCRegion": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Monitoring DC / region",
+                            "description": "The raising location datacenter or region where the incident occurred."
+                        },
+                        "MonitoringInstanceCluster": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Monitoring instance / cluster",
+                            "description": "The raising location instance, cluster, or device name where the the incident occured."
+                        },
+                        "MonitoringRole": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Monitoring role",
+                            "description": "The raising location  role or the device group."
+                        },
+                        "MonitoringSlice": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Monitoring slice",
+                            "description": "The raising location slice or the service instance id."
+                        },
+                        "HowFound": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "How found",
+                            "description": "Origin type containing how the incident was found."
+                        },
+                        "CloudInstance": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Cloud Instance",
+                            "description": "The name of cloud instance."
+                        },
+                        "CustomFieldsLookup": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Custom fields lookup",
+                            "description": "Lookup custom fields by custom field group name and parameter display name."
+                        },
+                        "EventType": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Trigger event type",
+                            "description": "This field will be populated only in response payload of IcM triggers."
+                        },
+                        "PreviousOwningServiceName": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Previous owning service name",
+                            "description": "This field will be populated only in response payload of IcM transfer triggers."
+                        },
+                        "PreviousOwningTeamName": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Previous owning team name",
+                            "description": "This field will be populated only in response payload of IcM transfer triggers."
+                        },
+                        "MitigatedBy": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Mitigated By",
+                            "description": "The alias of user who mitigated the incident."
+                        },
+                        "MitigatedDate": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Mitigated Date",
+                            "description": "The mitigation date for the incident."
+                        }
+                    }
+                },
+                "CustomFieldsDefinition": {
+                    "type": "object",
+                    "properties": {
+                        "CustomFieldName": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Custom field name",
+                            "description": "Custom field name."
+                        },
+                        "CustomFieldValue": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Custom field value",
+                            "description": "Value of custom field."
+                        }
+                    }
+                },
+                "IncidentRoutingResult": {
+                    "required": [
+                        "TeamId",
+                        "TeamPublicId",
+                        "TeamName",
+                        "TenantPublicId",
+                        "TenantId",
+                        "TenantName",
+                        "Score",
+                        "Confidence"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "TeamId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning team id",
+                            "description": "Likely owning teamId for the incident"
+                        },
+                        "TeamPublicId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning team public id",
+                            "description": "Likely owning team public id for the incident"
+                        },
+                        "TeamName": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning team name",
+                            "description": "Likely owning team name for the incident"
+                        },
+                        "TenantPublicId": {
+                            "format": "uuid",
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning tenant public id",
+                            "description": "Likely owning tenant publicId for the incident"
+                        },
+                        "TenantId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning tenant id",
+                            "description": "Likely owning tenantId for the incident"
+                        },
+                        "TenantName": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning tenant name",
+                            "description": "Likely owning tenant Name for the incident"
+                        },
+                        "Score": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Probablity score",
+                            "description": "Probablity score for the suggested owning team"
+                        },
+                        "Confidence": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Confidence level",
+                            "description": "Confidence level for the suggested team"
+                        }
+                    }
+                },
+                "SimilarIncident": {
+                    "required": [
+                        "Id",
+                        "Distance",
+                        "Confidence"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "Id": {
+                            "format": "int64",
+                            "type": "integer",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Incident id",
+                            "description": "Id of the similar incident."
+                        },
+                        "Title": {
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Title",
+                            "description": "The title of the similar incident."
+                        },
+                        "State": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Status",
+                            "description": "Status of the similar incident."
+                        },
+                        "Distance": {
+                            "format": "double",
+                            "type": "number",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Similarity score",
+                            "description": "Similarity score/distance(between 0 and 1) for the similar incident. Low score means highly similar."
+                        },
+                        "Confidence": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Confidence level",
+                            "description": "Confidence level for the similar incident."
+                        }
+                    }
+                },
+                "TransferIncident": {
+                    "required": [
+                        "OwningService",
+                        "OwningTeam",
+                        "Discussion"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "OwningService": {
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Owning service",
+                            "description": "The owning service name to transfer to.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTenantList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+
+                                }
+                            }
+                        },
+                        "OwningTeam": {
+                            "type": "string",
+                            "x-ms-visibility": "important",
+                            "x-ms-summary": "Owning team",
+                            "description": "The owning team name to transfer to.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTeamsList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+                                    "tenantName": {
+                                        "parameter": "OwningService"
+                                    }
+                                }
+                            }
+                        },
+                        "Discussion": {
+                            "$ref": "#/definitions/DiscussionDefinition",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Discussion entry",
+                            "description": "Provide discussion entry for transfer incident."
+                        }
+                    }
+                },
+                "UpdateSeverity": {
+                    "required": [
+                        "Severity",
+                        "DiscussionEntry"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "Severity": {
+                            "enum": [
+                                "0",
+                                "1",
+                                "2",
+                                "3",
+                                "4"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Severity",
+                            "description": "New severity of the incident."
+                        },
+                        "DiscussionEntry": {
+                            "$ref": "#/definitions/DiscussionDefinition",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Discussion entry",
+                            "description": "Provide discussion entry for updating the severity incident."
+                        }
+                    }
+                },
+                "EditIncident": {
+                    "type": "object",
+                    "properties": {
+                        "Title": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Title",
+                            "description": "Update title of the incident."
+                        },
+                        "TsgId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "TSG id",
+                            "description": "Update TSG id to be executed when the incident occurs."
+                        },
+                        "Keywords": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Keywords",
+                            "description": "Update Keywords associated with an incident."
+                        },
+                        "IncidentType": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Incident type",
+                            "description": "Type of the incident."
+                        },
+                        "IncidentSubType": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Incident sub type",
+                            "description": "The sub type of the incident."
+                        },
+                        "IsCustomerImpacting": {
+                            "type": "boolean",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Customer impact",
+                            "description": "Indicates whether the incident has impacted a customer of the owning service."
+                        },
+                        "IsNoise": {
+                            "type": "boolean",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Noise",
+                            "description": "Indicates whether the incident is classified as 'noise'"
+                        },
+                        "IsSecurityRisk": {
+                            "type": "boolean",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Security risk",
+                            "description": "Indicates whether the incident is classified as a security risk."
+                        },
+                        "CustomFields": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/EditCustomFieldsDefinition"
+                            },
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Edit custom fields",
+                            "description": "List of edit custom fields."
+                        },
+                        "Summary": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Incident summary",
+                            "description": "The summary text for the incident."
+                        },
+                        "InstanceCluster": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Instance / Cluster",
+                            "description": "The instance or cluster for the incident."
+                        }
+                    }
+                },
+                "EditCustomFieldsDefinition": {
+                    "type": "object",
+                    "properties": {
+                        "CustomFieldName": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Custom field name",
+                            "description": "Enter the custom field display name from the IcM UI."
+                        },
+                        "CustomFieldValue": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Custom field value",
+                            "description": "Enter custom field value."
+                        }
+                    }
+                },
+                "EditOwner": {
+                    "required": [
+                        "Owner"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "Owner": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owner",
+                            "description": "Update the alias of the incident owner."
+                        }
+                    }
+                },
+                "ResolveOrMitigateIncident": {
+                    "required": [
+                        "DiscussionText"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "IsCustomerImpacting": {
+                            "type": "boolean",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Customer impact",
+                            "description": "Indicates whether the incident has impacted a customer of the owning service."
+                        },
+                        "IsNoise": {
+                            "type": "boolean",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Noise",
+                            "description": "Indicates whether the incident is classified as 'noise'"
+                        },
+                        "DiscussionText": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Discussion entry",
+                            "description": "Add a discussion entry."
+                        },
+                        "ContactAlias": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Contact alias",
+                            "description": "Optional contact alias"
+                        }
+                    }
+                },
+                "ReactivateIncident": {
+                    "required": [
+                        "DisableVoiceNotifications",
+                        "ReactivationReason"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "DisableVoiceNotifications": {
+                            "type": "boolean",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Disable Voice Notifications",
+                            "description": "Disable the voice notifications for incident."
+                        },
+                        "ReactivationReason": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Reason for Reactivation",
+                            "description": "Provide the reason for reactivating the incident."
+                        }
+                    }
+                },
+                "AddOrUpdateRootCause": {
+                    "required": [
+                        "OwningService",
+                        "Category",
+                        "Description",
+                        "Title"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "OwningService": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning service",
+                            "description": "The name of the tenant that currently owns the incident.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTenantList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+
+                                }
+                            }
+                        },
+                        "Category": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Root cause category",
+                            "description": "The root cause category.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetRootCauseCategory",
+                                "value-path": "Value",
+                                "value-title": "DisplayText",
+                                "parameters": {
+                                    "tenantName": {
+                                        "parameter": "OwningService"
+                                    }
+                                }
+                            }
+                        },
+                        "Description": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Root cause description",
+                            "description": "The description for your root cause."
+                        },
+                        "Title": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Root cause title",
+                            "description": "The title for your root cause."
+                        }
+                    }
+                },
+                "RootCauseDetails": {
+                    "required": [
+                        "Category",
+                        "Description",
+                        "Title"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "RootCauseId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Root cause id",
+                            "description": "The id of the root cause."
+                        },
+                        "CreatedDate": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Created date",
+                            "description": "The created date for the root cause."
+                        },
+                        "ModifiedDate": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Modified date",
+                            "description": "The modified date for the root cause."
+                        },
+                        "LinkedIncidentDate": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Incident create date",
+                            "description": "The incident create date."
+                        },
+                        "Category": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Root cause category",
+                            "description": "The root cause category.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetRootCauseCategory",
+                                "value-path": "Value",
+                                "value-title": "DisplayText",
+                                "parameters": {
+                                    "tenantName": {
+                                        "parameter": "OwningService"
+                                    }
+                                }
+                            }
+                        },
+                        "Description": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Root cause description",
+                            "description": "The description for your root cause."
+                        },
+                        "Title": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Root cause title",
+                            "description": "The title for your root cause."
+                        }
+                    }
+                },
+                "ICMTrigger": {
+                    "required": [
+                        "OwningService"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "OwningService": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning service",
+                            "description": "The name of the service that currently owns the incident.",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTenantList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+
+                                }
+                            }
+                        },
+                        "OwningTeam": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Owning team",
+                            "description": "The name of the team that currently owns the incident. Multiple values can be specified as custom value separated by semicolon(;).",
+                            "x-ms-dynamic-values": {
+                                "operationId": "GetTeamsList",
+                                "value-path": "$",
+                                "value-title": "$",
+                                "parameters": {
+                                    "tenantName": {
+                                        "parameter": "OwningService"
+                                    }
+                                }
+                            }
+                        },
+                        "Severity": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Severity",
+                            "description": "Severity of the incident.",
+                            "x-ms-editor": "dropdown",
+                            "x-ms-editor-options": {
+                                "multiselect": true,
+                                "valueSeparator": ";",
+                                "titleSeparator": ";",
+                                "items": [
+                                    {
+                                        "title": "0",
+                                        "value": 0
+                                    },
+                                    {
+                                        "title": "1",
+                                        "value": 1
+                                    },
+                                    {
+                                        "title": "2",
+                                        "value": 2
+                                    },
+                                    {
+                                        "title": "3",
+                                        "value": 3
+                                    },
+                                    {
+                                        "title": "4",
+                                        "value": 4
+                                    }
+                                ]
+                            }
+                        },
+                        "Title": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Title contains",
+                            "description": "Value contained in the title of the incident."
+                        },
+                        "LatestDiscussionText": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Discussion entry",
+                            "description": "Value contained in the latest discussion entry for the incident."
+                        },
+                        "Summary": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "Summary contains",
+                            "description": "Value contained in the summary of the incident."
+                        },
+                        "Keywords": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Keywords",
+                            "description": "Value contained in the keywords property of the incident."
+                        },
+                        "TsgId": {
+                            "type": "string",
+                            "x-ms-visibility": "default",
+                            "x-ms-summary": "TSG id",
+                            "description": "Value contained in the TSG id property of the incident."
+                        },
+                        "IncidentType": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Incident type",
+                            "description": "Type of the incident."
+                        },
+                        "IncidentEnvironment": {
+                            "enum": [
+                                "UNKNOWN",
+                                "DOGFOOD",
+                                "INT",
+                                "PPE",
+                                "PROD",
+                                "STAGING",
+                                "TEST"
+                            ],
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Incident environment",
+                            "description": "Incident environment location."
+                        },
+                        "CorrelationId": {
+                            "type": "string",
+                            "x-ms-visibility": "advanced",
+                            "x-ms-summary": "Correlation id",
+                            "description": "Value contained in the correlation id property of the incident."
+                        },
+                        "WorkflowCallbackUrl": {
+                            "type": "string",
+                            "x-ms-visibility": "internal",
+                            "x-ms-notification-url": "true"
+                        }
+                    }
+                },
+                "RootCauseCategory": {
+                    "type": "object",
+                    "properties": {
+                        "DisplayText": {
+                            "type": "string"
+                        },
+                        "Value": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "securityDefinitions": {
+                "api_key": {
+                    "name": "x-ms-geneva-tokens",
+                    "in": "header",
+                    "type": "apiKey"
+                }
+            }
+        };
+        convertRequire(mySchema);
+        // console.log(mySchema);
+        $RefParser.dereference(mySchema)
+            .then(function (s) {
+                let body = s.paths[Object.keys(s.paths)[0]].post.parameters[0];
+                let schema = s.paths[Object.keys(s.paths)[0]].post.parameters[0].schema;
+                schema.title = body.name ? unCamelCaseToUpperFirt(body.name) : "Body";
+                console.log(mySchema.paths[Object.keys(mySchema.paths)[0]].post.parameters[0]);
+
+                $('form').jsonForm({
+                    schema: { schema }
+                    ,
+                    onSubmitValid: function (values) {
+                        if (console && console.log) {
+                            console.log('Values extracted from submitted form', values);
+                        }
+                        window.alert('Form submitted. Values object:\n' +
+                            JSON.stringify(values, null, 2));
+                    },
+                    onSubmit: function (errors, values) {
+                        if (errors) {
+                            console.log('Validation errors', errors);
+                            return false;
+                        }
+                        return true;
+                    }
+                });
+
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
+
+    </script>
+</body>
+
+</html>
